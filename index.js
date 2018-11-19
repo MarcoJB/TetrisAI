@@ -26,8 +26,10 @@ var Site = {
         this.accelerator = new Accelerator();
 
         this.canvas = document.querySelector('#games');
-        this.canvas.width = this.gamesPerRow * this.gameSettings.size.x * this.gameSettings.tileSize;
-        this.canvas.height = this.gamesPerCol * this.gameSettings.size.y * this.gameSettings.tileSize;
+        this.canvas.width = this.gamesPerRow * this.gameSettings.size.x;
+        this.canvas.height = this.gamesPerCol * this.gameSettings.size.y;
+        this.canvas.style.width = this.gamesPerRow * this.gameSettings.size.x * this.gameSettings.tileSize;
+        this.canvas.style.height = this.gamesPerCol * this.gameSettings.size.y * this.gameSettings.tileSize;
         this.ctx = this.canvas.getContext('2d');
 
         this.initGen();
