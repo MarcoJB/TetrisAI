@@ -38,15 +38,11 @@ var Site = {
         if (preInitGames) {
             this.games = this.games.concat(preInitGames);
         }
-        for (const game of this.games) {
-            document.querySelector('#games').appendChild(game.props.canvas);
-        }
 
         const preInitGameLength = preInitGames ? preInitGames.length : 0;
         for (var i = 0; i < this.gameAmount - preInitGameLength; i++) {
             const game = new Game();
             this.games.push(game);
-            document.querySelector('#games').appendChild(game.props.canvas);
         }
 
         this.start(500);
