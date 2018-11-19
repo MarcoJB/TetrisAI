@@ -13,7 +13,9 @@ var Site = {
             this.games.push(game);
             document.querySelector('#games').appendChild(game.props.canvas);
         }
-        this.games.concat(preInitGames);
+        if (!!preInitGames) {
+            this.games = this.games.concat(preInitGames);
+        }
         this.start();
     },
     start: function (speed) {
@@ -30,9 +32,7 @@ var Site = {
         }
 
         if (this.endCounter < this.games.length) {
-            setTimeout(function () {
-                that.step();
-            }, 5);
+            setTimeout(function () {that.step();}, 5);
         } else {
             const sortedScore = this.games.map(g => g.props.score).sort(((a, b) => b - a));
             const averageScore = sortedScore.reduce((pv, cv) => pv + cv, 0) / this.gameAmount;
@@ -54,19 +54,17 @@ var Site = {
     nextLevel: function () {
         if (this.level <= this.maxLevel) {
             this.level++;
-            this.games = [];
-            this.endCounter = 0;
             const networkScores = this.games.map(g => {
-                return {
+                const n = {
                     score: g.props.score,
                     network: g.props.network
-                }
+                };
+                return n;
             }).sort(((a, b) => b['score'] - a['score']));
-            const topNetworks = networkScores.slice(0, 24).map(g => g.network);
-            this.init(topNetworks.map(n => {
-                n.mutate();
-                return n
-            }));
+            const topNetworks = networkScores.slice(0, 14).map(g => g.network);
+            this.games = [];
+            this.endCounter = 0;
+            this.init(topNetworks.map(n=>n.clone()).concat(topNetworks.map(n => n.mutate(0.01))).map(n => new Game(n)));
         }
     }
 };

@@ -36,8 +36,9 @@ function Game(network) {
 
     this.props.network = network || new NeuralNetwork((this.props.size.x - 2) * (this.props.size.y - 1), 20, 6);
 
+    console.log(`Game started with generation ${this.props.network.props.generation} and mutation ${this.props.network.props.mutation}`);
 
-    this.getNetworkReaction = function() {
+    this.getNetworkReaction = function () {
         let input_vector = [];
         let y;
 
@@ -58,7 +59,7 @@ function Game(network) {
         return this.props.network.calc(input_vector);
     };
 
-    this.newTetrimino = function() {
+    this.newTetrimino = function () {
         this.props.skip = false;
         this.props.currentTetrimino.type = Math.floor(Math.random() * 7);
         this.props.currentTetrimino.position[1] = 4;
@@ -66,7 +67,7 @@ function Game(network) {
         this.props.currentTetrimino.rotationState = 0;
     };
 
-    this.performAction = function() {
+    this.performAction = function () {
         if (!this.props.active) return;
 
         const action = this.getNetworkReaction();
@@ -112,7 +113,7 @@ function Game(network) {
         this.render();
     };
 
-    this.sinkTetrimino = function() {
+    this.sinkTetrimino = function () {
         this.props.currentTetrimino.position[0]++;
 
         if (this.collisionExists()) {
@@ -132,7 +133,7 @@ function Game(network) {
         }
     };
 
-    this.clearLines = function() {
+    this.clearLines = function () {
         for (var y = this.props.size.y - 2; y >= 0; y--) {
             if (this.props.tiles[y].indexOf(false) < 0) {
                 this.props.score += 100;
@@ -147,7 +148,7 @@ function Game(network) {
         }
     };
 
-    this.collisionExists = function() {
+    this.collisionExists = function () {
         if (this.props.currentTetrimino.type === null) return false;
 
         for (var y = 0; y < 4; y++) {
@@ -161,7 +162,7 @@ function Game(network) {
         return false;
     };
 
-    this.storeTetrimino = function() {
+    this.storeTetrimino = function () {
         for (var y = 0; y < 4; y++) {
             for (var x = 0; x < 4; x++) {
                 if (tetrimini[this.props.currentTetrimino.type][this.props.currentTetrimino.rotationState][y][x]) {
@@ -171,13 +172,13 @@ function Game(network) {
         }
     };
 
-    this.gameOver = function() {
+    this.gameOver = function () {
         // console.log('LOST', this.props.score);
         this.props.active = false;
         Site.end(this);
     };
 
-    this.render = function() {
+    this.render = function () {
         if (this.props.doRender) {
             let x, y;
             this.props.ctx.clearRect(0, 0, this.props.size.x * 10, this.props.size.y * 10);
@@ -201,7 +202,6 @@ function Game(network) {
             }
         }
     };
-
 
 
     this.newTetrimino();
