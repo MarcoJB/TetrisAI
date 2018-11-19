@@ -1,4 +1,4 @@
-function Game() {
+function Game(network) {
     this.props = {
         canvas: null,
         ctx: null,
@@ -17,6 +17,7 @@ function Game() {
         score: 0,
         actionsPerStep: 20,
         actionCounter: 0,
+        doRender: true,
         network: null
     };
 
@@ -33,7 +34,7 @@ function Game() {
         }
     }
 
-    this.props.network = new NeuralNetwork((this.props.size.x - 2) * (this.props.size.y - 1), 20, 6);
+    this.props.network = network || new NeuralNetwork((this.props.size.x - 2) * (this.props.size.y - 1), 20, 6);
 
 
     this.getNetworkReaction = function() {
@@ -171,27 +172,31 @@ function Game() {
     };
 
     this.gameOver = function() {
-        console.log('LOST', this.props.score);
+        // console.log('LOST', this.props.score);
         this.props.active = false;
         Site.end(this);
     };
 
     this.render = function() {
-        let x, y;
-        this.props.ctx.clearRect(0, 0, this.props.size.x * 10, this.props.size.y * 10);
+        if (this.props.doRender) {
+            let x, y;
+            this.props.ctx.clearRect(0, 0, this.props.size.x * 10, this.props.size.y * 10);
 
-        this.props.ctx.fillStyle = '#555555';
+            this.props.ctx.fillStyle = '#555555';
 
-        for (y = 0; y < this.props.size.y; y++) {
-            for (x = 0; x < this.props.size.x; x++) {
-                if (this.props.tiles[y][x]) this.props.ctx.fillRect(x * 10, y * 10, 10, 10);
+            for (y = 0; y < this.props.size.y; y++) {
+                for (x = 0; x < this.props.size.x; x++) {
+                    if (this.props.tiles[y][x]) this.props.ctx.fillRect(x * 10, y * 10, 10, 10);
+                }
             }
-        }
 
-        if (this.props.currentTetrimino.type !== null) {
-            for (y = 0; y < 4; y++) {
-                for (x = 0; x < 4; x++) {
-                    if (tetrimini[this.props.currentTetrimino.type][this.props.currentTetrimino.rotationState][y][x]) this.props.ctx.fillRect((this.props.currentTetrimino.position[1] + x) * 10, (this.props.currentTetrimino.position[0] + y) * 10, 10, 10);
+            this.props.ctx.fillStyle = '#dd4455';
+
+            if (this.props.currentTetrimino.type !== null) {
+                for (y = 0; y < 4; y++) {
+                    for (x = 0; x < 4; x++) {
+                        if (tetrimini[this.props.currentTetrimino.type][this.props.currentTetrimino.rotationState][y][x]) this.props.ctx.fillRect((this.props.currentTetrimino.position[1] + x) * 10, (this.props.currentTetrimino.position[0] + y) * 10, 10, 10);
+                    }
                 }
             }
         }

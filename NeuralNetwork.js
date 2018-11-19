@@ -3,7 +3,8 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons) {
 
     this.props = {
         weights_hidden: [],
-        weights_output: []
+        weights_output: [],
+        id: null
     };
 
     for (i = 0; i < hidden_neurons; i++) {
@@ -22,7 +23,17 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons) {
         }
     }
 
-    this.calc = function(inputs) {
+    this.mutate = function () {
+        for (i = 0; i < hidden_neurons; i++) {
+            this.props.weights_hidden[i] = [];
+
+            for (j = 0; j < input_neurons * Math.random() * 0.1; j++) {
+                this.props.weights_hidden[i][j] = (this.props.weights_hidden[i][j] + 1) * Math.random() - 1;
+            }
+        }
+    };
+
+    this.calc = function (inputs) {
         let hidden_values = Helper.matMul(this.props.weights_hidden, inputs);
         hidden_values = Helper.activateVector(hidden_values, 'relu');
         let output_values = Helper.matMul(this.props.weights_output, hidden_values);
