@@ -43,10 +43,8 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons, props) {
         const c = this.clone();
         const change = changeSize || 0.1;
         for (i = 0; i < this.hidden_neurons; i++) {
-            c.props.weights_hidden[i] = [];
-
-            for (j = 0; j < this.input_neurons * Math.random() * change; j++) {
-                c.props.weights_hidden[i][j] = (c.props.weights_hidden[i][j] + 1) * Math.random() - 1;
+            for (j = 0; j < this.input_neurons; j++) {
+                c.props.weights_hidden[i][j] += Helper.random(-change, change);
             }
         }
         c.props.mutation++;
