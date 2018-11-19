@@ -1,4 +1,6 @@
 var Site = {
+    canvas: null,
+    ctx: null,
     accelerator: null,
     speed: 50,
     gameAmount: 100,
@@ -8,6 +10,8 @@ var Site = {
     maxLevel: 500,
     scores: [],
     doRender: true,
+    gamesPerRow: 10,
+    gamesPerCol: null,
     gameSettings: {
         size: {
             x: 12,
@@ -17,12 +21,19 @@ var Site = {
         actionsPerStep: 20
     },
     init: function() {
+        this.gamesPerCol = Math.ceil(this.gameAmount / this.gamesPerRow);
+
         this.accelerator = new Accelerator();
+
+        this.canvas = document.querySelector('#games');
+        this.canvas.width = this.gamesPerRow * this.gameSettings.size.x * this.gameSettings.tileSize;
+        this.canvas.height = this.gamesPerCol * this.gameSettings.size.y * this.gameSettings.tileSize;
+        this.ctx = this.canvas.getContext('2d');
 
         this.initGen();
     },
     initGen: function (preInitGames) {
-        document.querySelector('#games').innerText = '';
+        //document.querySelector('#games').innerText = '';
 
         if (preInitGames) {
             this.games = this.games.concat(preInitGames);
@@ -52,6 +63,8 @@ var Site = {
             this.games[i].performAction();
         }
 
+        if (this.doRender) this.render();
+
         if (this.endCounter < this.games.length) {
             setTimeout(function () {that.step();}, 500 / this.speed);
         } else {
@@ -72,13 +85,26 @@ var Site = {
         this.endCounter++;
     },
     render: function() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         const tiles = [];
+        const currentTetriminiPosition = [];
+        const currentTetriminiConfiguration = [];
 
         for (var game of this.games) {
             tiles.push(game.props.tiles);
+
+            if (game.props.currentTetrimino.type !== null) {
+                currentTetriminiPosition.push(game.props.currentTetrimino.position);
+                currentTetriminiConfiguration.push(tetrimini[game.props.currentTetrimino.type][game.props.currentTetrimino.rotationState]);
+            } else {
+                currentTetriminiPosition.push([0, 0]);
+                currentTetriminiConfiguration.push([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]);
+            }
         }
 
-
+        this.accelerator.render(tiles, currentTetriminiPosition, currentTetriminiConfiguration);
+        this.ctx.drawImage(this.accelerator.render.getCanvas(), 0, 0);
     },
     nextLevel: function () {
         if (this.level <= this.maxLevel) {

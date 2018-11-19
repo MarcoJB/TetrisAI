@@ -104,7 +104,7 @@ function Game(network) {
 
         this.props.actionCounter++;
 
-        this.render();
+        //this.render();
     };
 
     this.sinkTetrimino = function () {
