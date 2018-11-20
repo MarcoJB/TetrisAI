@@ -9,6 +9,10 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons, props) {
         id: null
     };
 
+    // increase for bias
+    input_neurons++;
+    hidden_neurons++;
+
     for (i = 0; i < hidden_neurons; i++) {
         this.props.weights_hidden[i] = [];
 
@@ -26,6 +30,8 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons, props) {
     }
 
     this.calc = function (inputs) {
+        // pad for bias
+        inputs = [1].concat(inputs);
         let hidden_values = Helper.matMul(this.props.weights_hidden, inputs);
         hidden_values = Helper.activateVector(hidden_values, 'relu');
         let output_values = Helper.matMul(this.props.weights_output, hidden_values);
@@ -36,7 +42,12 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons, props) {
     this.clone = function () {
         const c = JSON.parse(JSON.stringify({input_neurons, hidden_neurons, output_neurons, props: this.props}));
         c.props.generation++;
-        return new NeuralNetwork(c.input_neurons, c.hidden_neurons, c.output_neurons, c.props);
+        return new NeuralNetwork(
+            // omit bias
+            c.input_neurons - 1,
+            c.hidden_neurons - 1,
+            c.output_neurons,
+            c.props);
     };
 
     this.mutate = function (changeSize) {
@@ -48,6 +59,10 @@ function NeuralNetwork(input_neurons, hidden_neurons, output_neurons, props) {
             }
         }
         c.props.mutation++;
-        return new NeuralNetwork(this.input_neurons, this.hidden_neurons, this.output_neurons, c.props);
+        return new NeuralNetwork(
+            // omit bias
+            this.input_neurons - 1,
+            this.hidden_neurons - 1,
+            this.output_neurons, c.props);
     }
 }
