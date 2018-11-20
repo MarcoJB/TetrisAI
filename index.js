@@ -11,7 +11,7 @@ var Site = {
     maxLevel: 5000,
     scores: [],
     doRender: true,
-    gamesPerRow: 10,
+    gamesPerRow: 15,
     gamesPerCol: null,
     gameSettings: {
         size: {

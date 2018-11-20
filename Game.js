@@ -29,7 +29,7 @@ function Game(network) {
         }
     }
 
-    this.props.network = network || new NeuralNetwork((Site.gameSettings.size.x - 2) * (Site.gameSettings.size.y - 1), 20, 6);
+    this.props.network = network || new NeuralNetwork((Site.gameSettings.size.x - 2) * (Site.gameSettings.size.y - 1), 12, 10, 6);
 
     //console.log(`Game started with generation ${this.props.network.props.generation} and mutation ${this.props.network.props.mutation}`);
 
