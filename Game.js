@@ -9,6 +9,7 @@ function Game(network) {
             position: [null, null],
             rotationState: null
         },
+        currentRandom: 0,
         skip: false,
         score: 0,
         clearedLines: 0,
@@ -62,9 +63,10 @@ function Game(network) {
         this.props.currentTetrimino.rotationState = 0;
     };
 
-    this.performAction = function () {
+    this.performAction = function (currentRandom) {
         if (!this.props.active) return;
 
+        this.props.currentRandom = currentRandom;
         const action = this.getNetworkReaction();
 
         switch (action) {

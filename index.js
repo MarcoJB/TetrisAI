@@ -3,15 +3,17 @@ var Site = {
     canvas: null,
     ctx: null,
     accelerator: null,
+    currentRandom: 0,
     speed: 500,
-    gameAmount: 100,
+    gameAmount: 130,
     games: [],
     endCounter: 0,
     level: 0,
     maxLevel: 5000,
     scores: [],
+    highscores: [],
     doRender: true,
-    gamesPerRow: 15,
+    gamesPerRow: 13,
     gamesPerCol: null,
     gameSettings: {
         size: {
@@ -25,6 +27,8 @@ var Site = {
         this.gamesPerCol = Math.ceil(this.gameAmount / this.gamesPerRow);
 
         this.accelerator = new Accelerator();
+
+        this.currentRandom = Math.random();
 
         this.canvas = document.querySelector('#games');
         this.canvas.width = this.gamesPerRow * this.gameSettings.size.x;
@@ -59,8 +63,10 @@ var Site = {
         const that = this;
 
         for (var i = 0; i < this.games.length; i++) {
-            this.games[i].performAction();
+            this.games[i].performAction(this.currentRandom);
         }
+
+        this.currentRandom = Math.random();
 
         if (this.doRender) this.render();
 
@@ -73,17 +79,24 @@ var Site = {
             const averageScore = sortedScore.reduce((pv, cv) => pv + cv, 0) / this.games.length;
             const halfAvgScore = sortedScore.slice(0, this.games.length / 2).reduce((pv, cv) => pv + cv, 0) / this.games.length * 2;
             this.sum += averageScore;
-            this.scores.push({scores: sortedScore, averageScore});
+            this.scores.push({scores: sortedScore, averageScore, highScore: sortedScore[0]});
             if (this.level === 0) {
-                const statsText = `Generation ${this.level}: Highscore ${sortedScore[0]} - avg ${averageScore} - avg/2 ${halfAvgScore} (global avg: ${Math.round((this.sum / (1 + this.level)) * 100) / 100})`;
+                const statsText = {
+                    header: `Generation ${this.level}`,
+                    text: `Highscore ${sortedScore[0]} - avg ${averageScore} - avg/2 ${halfAvgScore} (global avg: ${Math.round((this.sum / (1 + this.level)) * 100) / 100})`
+                };
                 console.warn(statsText);
                 updateStats(statsText);
             } else {
                 const deltaHighscore = Helper.displaySign(sortedScore[0] - this.scores[this.level - 1].scores[0]);
-                const statsText = `Generation ${this.level}: Highscore ${sortedScore[0]} (${deltaHighscore}) - avg ${averageScore} - avg/2 ${halfAvgScore} (global avg: ${Math.round((this.sum / (1 + this.level)) * 100) / 100})`;
+                const statsText = {
+                    header: `Generation ${this.level}`,
+                    text: `Highscore ${sortedScore[0]} (${deltaHighscore}) - avg ${averageScore} - avg/2 ${halfAvgScore} (global avg: ${Math.round((this.sum / (1 + this.level)) * 100) / 100})`
+                };
                 console.warn(statsText);
                 updateStats(statsText);
             }
+            drawStats(this.scores, (this.sum / (1 + this.level)));
             this.nextLevel();
         }
     },
@@ -121,7 +134,8 @@ var Site = {
                     network: g.props.network
                 };
             }).sort(((a, b) => b['score'] - a['score']));
-            const partition = 8;
+            const clearedNetworks = this.games.filter(g => g.props.clearedLines > 0).map(g => g.props.network);
+            const partition = 6;
             const topNetworks = networkScores.slice(0, Math.round(this.games.length / partition)).map(g => g.network);
             this.games = [];
             this.endCounter = 0;
@@ -130,10 +144,24 @@ var Site = {
                 .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.005)))
                 .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.005)))
                 .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.01)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.01)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.01)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.01)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.01)))
                 .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.02)))
-                .concat(topNetworks.map(n => n.mutate(0.01)))
-                .concat(topNetworks.map(n => n.mutate(0.10)))
-                .concat(topNetworks.map(n => n.mutate(0.25)))
+                .concat(clearedNetworks.map(n => n.clone()))
+                .concat(clearedNetworks.map(n => n.clone()))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(clearedNetworks.map(n => n.mutate(0.01)))
+                .concat(topNetworks.map(n => n.mutate(0.04)))
                 .map(n => new Game(n));
 
             this.initGen(games);
@@ -143,7 +171,7 @@ var Site = {
 
 function updateStats(statsText) {
     const stats = document.querySelector('#stats');
-    stats.innerHTML = `<p>${statsText}</p>`;
+    stats.innerHTML = `<h3>${statsText.header}</h3><p>${statsText.text}</p>`;
 }
 
 window.addEventListener('load', function () {

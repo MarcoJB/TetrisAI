@@ -13,6 +13,6 @@
 }
 
 #stats {
-    flex-grow: 1;
     padding: 10px;
+    width: 650px;
 }
