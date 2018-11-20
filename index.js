@@ -1,13 +1,14 @@
 var Site = {
+    sum: 0,
     canvas: null,
     ctx: null,
     accelerator: null,
-    speed: 50,
+    speed: 500,
     gameAmount: 100,
     games: [],
     endCounter: 0,
     level: 0,
-    maxLevel: 500,
+    maxLevel: 5000,
     scores: [],
     doRender: true,
     gamesPerRow: 10,
@@ -17,10 +18,10 @@ var Site = {
             x: 12,
             y: 21
         },
-        tileSize: 10,
+        tileSize: 2.5,
         actionsPerStep: 20
     },
-    init: function() {
+    init: function () {
         this.gamesPerCol = Math.ceil(this.gameAmount / this.gamesPerRow);
 
         this.accelerator = new Accelerator();
@@ -47,7 +48,7 @@ var Site = {
             this.games.push(game);
         }
 
-        this.start(500);
+        this.start(500000);
     },
     start: function (speed) {
         this.speed = speed || 1;
@@ -64,17 +65,24 @@ var Site = {
         if (this.doRender) this.render();
 
         if (this.endCounter < this.games.length) {
-            setTimeout(function () {that.step();}, 500 / this.speed);
+            setTimeout(function () {
+                that.step();
+            }, 500 / this.speed);
         } else {
             const sortedScore = this.games.map(g => g.props.score).sort(((a, b) => b - a));
             const averageScore = sortedScore.reduce((pv, cv) => pv + cv, 0) / this.games.length;
+            const halfAvgScore = sortedScore.slice(0, this.games.length / 2).reduce((pv, cv) => pv + cv, 0) / this.games.length * 2;
+            this.sum += averageScore;
             this.scores.push({scores: sortedScore, averageScore});
             if (this.level === 0) {
-                console.warn(`Generation ${this.level}: Highscore ${sortedScore[0]} - average score ${averageScore}`);
+                const statsText = `Generation ${this.level}: Highscore ${sortedScore[0]} - avg ${averageScore} - avg/2 ${halfAvgScore} (global avg: ${Math.round((this.sum / (1 + this.level)) * 100) / 100})`;
+                console.warn(statsText);
+                updateStats(statsText);
             } else {
                 const deltaHighscore = Helper.displaySign(sortedScore[0] - this.scores[this.level - 1].scores[0]);
-                const deltaAverage = Helper.displaySign(averageScore - this.scores[this.level - 1].averageScore);
-                console.warn(`Generation ${this.level}: Highscore ${sortedScore[0]} (${deltaHighscore}) - average score ${averageScore} (${deltaAverage})`);
+                const statsText = `Generation ${this.level}: Highscore ${sortedScore[0]} (${deltaHighscore}) - avg ${averageScore} - avg/2 ${halfAvgScore} (global avg: ${Math.round((this.sum / (1 + this.level)) * 100) / 100})`;
+                console.warn(statsText);
+                updateStats(statsText);
             }
             this.nextLevel();
         }
@@ -82,7 +90,7 @@ var Site = {
     end: function () {
         this.endCounter++;
     },
-    render: function() {
+    render: function () {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         const tiles = [];
@@ -97,7 +105,7 @@ var Site = {
                 currentTetriminiConfiguration.push(tetrimini[game.props.currentTetrimino.type][game.props.currentTetrimino.rotationState]);
             } else {
                 currentTetriminiPosition.push([0, 0]);
-                currentTetriminiConfiguration.push([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]);
+                currentTetriminiConfiguration.push([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]);
             }
         }
 
@@ -108,22 +116,35 @@ var Site = {
         if (this.level <= this.maxLevel) {
             this.level++;
             const networkScores = this.games.map(g => {
-                const n = {
+                return {
                     score: g.props.score,
                     network: g.props.network
                 };
-                return n;
             }).sort(((a, b) => b['score'] - a['score']));
-            const topNetworks = networkScores.slice(0, Math.round(this.games.length / 3)).map(g => g.network);
+            const partition = 8;
+            const topNetworks = networkScores.slice(0, Math.round(this.games.length / partition)).map(g => g.network);
             this.games = [];
             this.endCounter = 0;
 
-            const games = topNetworks.map(n=>n.clone()).concat(topNetworks.map(n => n.mutate(0.01))).map(n => new Game(n));
+            const games = topNetworks.map(n => n.clone())
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.005)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.005)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.01)))
+                .concat(topNetworks.slice(0, this.games.length / (partition * 4)).map(n => n.mutate(0.02)))
+                .concat(topNetworks.map(n => n.mutate(0.01)))
+                .concat(topNetworks.map(n => n.mutate(0.10)))
+                .concat(topNetworks.map(n => n.mutate(0.25)))
+                .map(n => new Game(n));
 
             this.initGen(games);
         }
     }
 };
+
+function updateStats(statsText) {
+    const stats = document.querySelector('#stats');
+    stats.innerHTML = `<p>${statsText}</p>`;
+}
 
 window.addEventListener('load', function () {
     Site.init();

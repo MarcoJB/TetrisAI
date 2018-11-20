@@ -1,3 +1,18 @@
 #games {
     image-rendering: pixelated;
 }
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gamewrapper {
+    padding: 10px;
+}
+
+#stats {
+    flex-grow: 1;
+    padding: 10px;
+}

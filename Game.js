@@ -11,6 +11,7 @@ function Game(network) {
         },
         skip: false,
         score: 0,
+        clearedLines: 0,
         actionCounter: 0,
         network: null
     };
@@ -131,6 +132,7 @@ function Game(network) {
         for (var y = Site.gameSettings.size.y - 2; y >= 0; y--) {
             if (this.props.tiles[y].indexOf(false) < 0) {
                 this.props.score += 100;
+                this.props.clearedLines += 1;
                 console.log('CLEARED LINE', this.props.score);
 
                 for (var y_ = y - 1; y_ >= 0; y_--) {
@@ -179,7 +181,10 @@ function Game(network) {
 
             let x, y;
             this.props.ctx.clearRect(0, 0, Site.gameSettings.size.x * 10, Site.gameSettings.size.y * 10);
-
+            if (this.props.clearedLines > 0) {
+                this.props.ctx.fillStyle = '#33cc33';
+                this.props.ctx.fillRect(0, 0, Site.gameSettings.size.x * 10, Site.gameSettings.size * 10);
+            }
             this.props.ctx.fillStyle = '#555555';
 
             for (y = 0; y < Site.gameSettings.size.y; y++) {
