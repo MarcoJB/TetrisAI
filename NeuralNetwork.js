@@ -39,15 +39,22 @@ function NeuralNetwork(input_neurons, hidden_neurons, hidden_neurons2, output_ne
         }
     }
 
-    this.calc = function (inputs) {
+    this.calc = function (inputs, correctionVector) {
         // pad for bias
         inputs = [1].concat(inputs);
+
         let hidden_values = Helper.matMul(this.props.weights_hidden, inputs);
         hidden_values = Helper.activateVector(hidden_values, 'relu');
         let hidden_values2 = Helper.matMul(this.props.weights_hidden2, hidden_values);
         hidden_values2 = Helper.activateVector(hidden_values2, 'relu');
         let output_values = Helper.matMul(this.props.weights_output, hidden_values2);
-        output_values = Helper.activateVector(output_values, 'hs');
+        output_values = Helper.activateVector(output_values, 'sigm');
+
+
+        // add predefined correction values
+        if (correctionVector) {
+            output_values = Helper.vectMul(output_values, correctionVector);
+        }
         return output_values.indexOf(Math.max(...output_values));
     };
 
@@ -72,32 +79,33 @@ function NeuralNetwork(input_neurons, hidden_neurons, hidden_neurons2, output_ne
     this.mutate = function (changeSize) {
         const c = this.clone();
         const change = Math.sqrt(changeSize) || 0.1;
-
         // mutate just some weights
-        for (i = Math.random() * changeSize * this.hidden_neurons; i < this.hidden_neurons; i += Math.random() * change * this.hidden_neurons) {
-            for (j = Math.random() * changeSize * this.input_neurons; j < this.input_neurons; i += Math.random() * change * this.input_neurons) {
-                c.props.weights_hidden[i] = Helper.random(-1, 1);
+
+
+        for (let i = Math.random() * change * hidden_neurons; i < hidden_neurons; i += Math.random() * change * hidden_neurons) {
+            for (let j = Math.random() * change * input_neurons; j < input_neurons; j += Math.random() * change * input_neurons) {
+                c.props.weights_hidden[Math.floor(i)][Math.floor(j)] = Helper.random(-1, 1);
             }
         }
 
-        for (i = Math.random() * changeSize * this.hidden_neurons2; i < this.hidden_neurons2; i += Math.random() * change * this.hidden_neurons2) {
-            for (j = Math.random() * changeSize * this.hidden_neurons; j < this.hidden_neurons; i += Math.random() * change * this.hidden_neurons) {
-                c.props.weights_hidden2[i] = Helper.random(-1, 1);
+        for (let i = Math.random() * change * hidden_neurons2; i < hidden_neurons2; i += Math.random() * change * hidden_neurons2) {
+            for (let j = Math.random() * change * hidden_neurons; j < hidden_neurons; j += Math.random() * change * hidden_neurons) {
+                c.props.weights_hidden2[Math.floor(i)][Math.floor(j)] = Helper.random(-1, 1);
             }
         }
 
-        for (i = Math.random() * changeSize * this.output_neurons; i < this.output_neurons; i += Math.random() * change * this.output_neurons) {
-            for (j = Math.random() * changeSize * this.hidden_neurons2; j < this.hidden_neurons2; i += Math.random() * change * this.hidden_neurons2) {
-                c.props.weights_output[i] = Helper.random(-1, 1);
+        for (let i = Math.random() * change * output_neurons; i < output_neurons; i += Math.random() * change * output_neurons) {
+            for (let j = Math.random() * change * hidden_neurons2; j < hidden_neurons2; j += Math.random() * change * hidden_neurons2) {
+                c.props.weights_output[Math.floor(i)][Math.floor(j)] = Helper.random(-1, 1);
             }
         }
 
         c.props.mutation++;
         return new NeuralNetwork(
             // omit bias
-            this.input_neurons - 1,
-            this.hidden_neurons - 1,
-            this.hidden_neurons2 - 1,
-            this.output_neurons, c.props);
+            input_neurons - 1,
+            hidden_neurons - 1,
+            hidden_neurons2 - 1,
+            output_neurons, c.props);
     }
 }

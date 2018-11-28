@@ -12,6 +12,7 @@ function Game(network) {
         currentRandom: 0,
         skip: false,
         score: 0,
+        scoreSum: 0,
         clearedLines: 0,
         actionCounter: 0,
         network: null
@@ -29,8 +30,8 @@ function Game(network) {
             this.props.tiles[y][x] = x === 0 || x === 11 || y === 20;
         }
     }
-
-    this.props.network = network || new NeuralNetwork((Site.gameSettings.size.x - 2) * (Site.gameSettings.size.y - 1), 12, 10, 6);
+    // 48, 12, 6
+    this.props.network = network || new NeuralNetwork((Site.gameSettings.size.x - 2) * (Site.gameSettings.size.y - 1), 24, 12, 6);
 
     //console.log(`Game started with generation ${this.props.network.props.generation} and mutation ${this.props.network.props.mutation}`);
 
@@ -57,7 +58,7 @@ function Game(network) {
 
     this.newTetrimino = function () {
         this.props.skip = false;
-        this.props.currentTetrimino.type = Math.floor(Math.random() * 7);
+        this.props.currentTetrimino.type = Math.floor(this.props.currentRandom * 7);
         this.props.currentTetrimino.position[1] = 4;
         this.props.currentTetrimino.position[0] = 0;
         this.props.currentTetrimino.rotationState = 0;
@@ -70,6 +71,9 @@ function Game(network) {
         const action = this.getNetworkReaction();
 
         switch (action) {
+            case 0:
+                this.sinkTetrimino();
+                break;
             case 1:
                 this.props.actionCounter = Site.gameSettings.actionsPerStep;
                 break;
@@ -184,6 +188,7 @@ function Game(network) {
             let x, y;
             this.props.ctx.clearRect(0, 0, Site.gameSettings.size.x * 10, Site.gameSettings.size.y * 10);
             if (this.props.clearedLines > 0) {
+
                 this.props.ctx.fillStyle = '#33cc33';
                 this.props.ctx.fillRect(0, 0, Site.gameSettings.size.x * 10, Site.gameSettings.size * 10);
             }

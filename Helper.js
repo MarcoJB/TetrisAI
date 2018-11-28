@@ -52,14 +52,17 @@ Helper.activateVector = function (values, type) {
 };
 
 Helper.activateValue = function (value, type) {
-    if (type === 'lin') {
-        return value;
-    } else if (type === 'hs') {
-        return value > 0 ? 1 : 0;
-    } else if (type === 'relu') {
-        return value > 0 ? value : 0;
-    } else if (type === 'atan') {
-        return Math.atan(value);
+    switch (type) {
+        case 'lin':
+            return value;
+        case 'hs':
+            return value > 0 ? 1 : 0;
+        case 'relu':
+            return value > 0 ? value : 0;
+        case 'atan':
+            return Math.atan(value);
+        case 'sigm':
+            return 1 / (1 + Math.exp(-value));
     }
 };
 
