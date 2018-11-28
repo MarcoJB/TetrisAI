@@ -104,7 +104,7 @@ function Game(network) {
                 break;
         }
 
-        if (this.props.actionCounter >= this.props.actionCounter) {
+        if (this.props.actionCounter >= Site.gameSettings.actionsPerStep) {
             this.props.actionCounter = 0;
             this.sinkTetrimino();
         }

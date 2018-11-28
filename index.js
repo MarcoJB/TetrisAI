@@ -23,7 +23,7 @@ var Site = {
                 y: 21
             },
             tileSize: 1,
-            actionsPerStep: 20
+            actionsPerStep: 1
         },
         init: function () {
             this.gamesPerCol = Math.ceil(this.gameAmount / this.gamesPerRow);
